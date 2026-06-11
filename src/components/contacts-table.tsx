@@ -17,8 +17,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
 import { MoreHorizontal, Pencil, Trash2, User, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { sortableColumnKeys } from "@/lib/constants";
+import type { SortableColumnKey } from "@/lib/constants";
 import Image from "next/image";
 
 /** 列定义 */
@@ -26,18 +27,21 @@ interface ColumnDef {
   key: string;
   label: string;
   className?: string;
-  sortable?: boolean;
 }
 
 const columns: ColumnDef[] = [
-  { key: "name", label: "姓名", sortable: true },
-  { key: "employeeId", label: "工号", className: "hidden md:table-cell", sortable: true },
+  { key: "name", label: "姓名" },
+  { key: "employeeId", label: "工号", className: "hidden md:table-cell" },
   { key: "email", label: "邮箱", className: "hidden sm:table-cell" },
   { key: "phone", label: "电话", className: "hidden lg:table-cell" },
   { key: "department", label: "部门", className: "hidden lg:table-cell" },
-  { key: "position", label: "职位", className: "hidden xl:table-cell", sortable: true },
+  { key: "position", label: "职位", className: "hidden xl:table-cell" },
   { key: "status", label: "状态" },
 ];
+
+function isSortable(key: string): key is SortableColumnKey {
+  return (sortableColumnKeys as readonly string[]).includes(key);
+}
 
 interface ContactsTableProps {
   contacts: Contact[];
@@ -99,7 +103,7 @@ export function ContactsTable({
                 key={col.key}
                 className={col.className}
               >
-                {col.sortable ? (
+                {isSortable(col.key) ? (
                   <button
                     type="button"
                     onClick={() => handleSort(col.key)}

@@ -1,6 +1,10 @@
 import { getContacts, getDepartments } from "@/lib/queries";
 import { ContactsPageClient } from "@/components/contacts-page-client";
 
+function parseOrder(value?: string): "asc" | "desc" | undefined {
+  return value === "asc" || value === "desc" ? value : undefined;
+}
+
 export default async function Home({
   searchParams,
 }: {
@@ -17,6 +21,7 @@ export default async function Home({
   const params = await searchParams;
   const page = Number(params.page) || 1;
   const pageSize = Number(params.pageSize) || 10;
+  const order = parseOrder(params.order);
 
   try {
     const [contactsResult, departments] = await Promise.all([
@@ -27,7 +32,7 @@ export default async function Home({
         department: params.department,
         status: params.status,
         sort: params.sort,
-        order: (params.order === "asc" || params.order === "desc") ? params.order : undefined,
+        order,
       }),
       getDepartments(),
     ]);
@@ -41,7 +46,7 @@ export default async function Home({
         pageSize={pageSize}
         departments={departments}
         sort={params.sort ?? ""}
-        order={params.order === "asc" || params.order === "desc" ? params.order : "desc"}
+        order={order ?? "desc"}
       />
     );
   } catch (error) {

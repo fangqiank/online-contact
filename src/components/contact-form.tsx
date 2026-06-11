@@ -91,10 +91,6 @@ export function ContactForm({
     prevOpen.current = open;
   }, [open, contact]);
 
-  function handleOpenChange(value: boolean) {
-    onOpenChange(value);
-  }
-
   function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
@@ -141,7 +137,7 @@ export function ContactForm({
   }
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>{isEdit ? "编辑人员" : "添加人员"}</DialogTitle>

@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import { contacts } from "@/db/schema";
-import { eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import type { NewContact } from "@/lib/types";
 
@@ -21,7 +21,7 @@ export async function updateContact(id: number, data: Partial<NewContact>) {
   try {
     await db
       .update(contacts)
-      .set({ ...data, updatedAt: sql`NOW()` })
+      .set({ ...data, updatedAt: new Date() })
       .where(eq(contacts.id, id));
     revalidatePath("/");
     return { success: true as const };
