@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Contact, NewContact } from "@/lib/types";
 import {
   createContact,
@@ -76,12 +76,22 @@ export function ContactForm({
 }: ContactFormProps) {
   const isEdit = !!contact;
   const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState<FormState>(() => toFormState(contact));
+  const [form, setForm] = useState<FormState>(toFormState(null));
+  const prevOpen = useRef(open);
 
-  function handleOpenChange(value: boolean) {
-    if (value) {
+  // 当 dialog 打开或 contact 变化时，同步表单数据
+  useEffect(() => {
+    if (open) {
       setForm(toFormState(contact));
     }
+    // 关闭时清理表单
+    if (!open && prevOpen.current) {
+      setLoading(false);
+    }
+    prevOpen.current = open;
+  }, [open, contact]);
+
+  function handleOpenChange(value: boolean) {
     onOpenChange(value);
   }
 
