@@ -21,20 +21,21 @@ import { Button } from "@/components/ui/button";
 import { MoreHorizontal, Pencil, Trash2, User, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import Image from "next/image";
 
-/** 可排序列定义 */
-interface SortableColumn {
+/** 列定义 */
+interface ColumnDef {
   key: string;
   label: string;
   className?: string;
+  sortable?: boolean;
 }
 
-const columns: SortableColumn[] = [
-  { key: "name", label: "姓名" },
-  { key: "employeeId", label: "工号", className: "hidden md:table-cell" },
+const columns: ColumnDef[] = [
+  { key: "name", label: "姓名", sortable: true },
+  { key: "employeeId", label: "工号", className: "hidden md:table-cell", sortable: true },
   { key: "email", label: "邮箱", className: "hidden sm:table-cell" },
   { key: "phone", label: "电话", className: "hidden lg:table-cell" },
   { key: "department", label: "部门", className: "hidden lg:table-cell" },
-  { key: "position", label: "职位", className: "hidden xl:table-cell" },
+  { key: "position", label: "职位", className: "hidden xl:table-cell", sortable: true },
   { key: "status", label: "状态" },
 ];
 
@@ -98,14 +99,18 @@ export function ContactsTable({
                 key={col.key}
                 className={col.className}
               >
-                <button
-                  type="button"
-                  onClick={() => handleSort(col.key)}
-                  className="group inline-flex items-center hover:text-foreground cursor-pointer -ml-1 px-1 rounded transition-colors"
-                >
-                  {col.label}
-                  <SortIcon columnKey={col.key} />
-                </button>
+                {col.sortable ? (
+                  <button
+                    type="button"
+                    onClick={() => handleSort(col.key)}
+                    className="group inline-flex items-center hover:text-foreground cursor-pointer -ml-1 px-1 rounded transition-colors"
+                  >
+                    {col.label}
+                    <SortIcon columnKey={col.key} />
+                  </button>
+                ) : (
+                  col.label
+                )}
               </TableHead>
             ))}
             <TableHead className="w-[50px]">

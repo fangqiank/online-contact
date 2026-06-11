@@ -16,11 +16,7 @@ export interface GetContactsParams {
 /** 允许排序的列映射，防止 SQL 注入 */
 const sortableColumns: Record<string, PgColumn> = {
   name: contacts.name,
-  email: contacts.email,
-  phone: contacts.phone,
-  department: contacts.department,
   position: contacts.position,
-  status: contacts.status,
   hireDate: contacts.hireDate,
   employeeId: contacts.employeeId,
   salaryLevel: contacts.salaryLevel,
