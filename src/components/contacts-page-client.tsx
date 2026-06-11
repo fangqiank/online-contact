@@ -17,6 +17,8 @@ interface ContactsPageClientProps {
   currentPage: number;
   pageSize: number;
   departments: string[];
+  sort: string;
+  order: "asc" | "desc";
 }
 
 export function ContactsPageClient({
@@ -26,6 +28,8 @@ export function ContactsPageClient({
   currentPage,
   pageSize,
   departments,
+  sort,
+  order,
 }: ContactsPageClientProps) {
   const [createOpen, setCreateOpen] = useState(false);
   const [editContact, setEditContact] = useState<Contact | null>(null);
@@ -57,6 +61,8 @@ export function ContactsPageClient({
         contacts={contacts}
         onEdit={(contact) => setEditContact(contact)}
         onDelete={(contact) => setDeleteTarget(contact)}
+        sort={sort}
+        order={order}
       />
 
       {/* Pagination */}

@@ -10,6 +10,8 @@ export default async function Home({
     status?: string;
     page?: string;
     pageSize?: string;
+    sort?: string;
+    order?: string;
   }>;
 }) {
   const params = await searchParams;
@@ -24,6 +26,8 @@ export default async function Home({
         search: params.search,
         department: params.department,
         status: params.status,
+        sort: params.sort,
+        order: (params.order === "asc" || params.order === "desc") ? params.order : undefined,
       }),
       getDepartments(),
     ]);
@@ -36,6 +40,8 @@ export default async function Home({
         currentPage={page}
         pageSize={pageSize}
         departments={departments}
+        sort={params.sort ?? ""}
+        order={params.order === "asc" || params.order === "desc" ? params.order : "desc"}
       />
     );
   } catch (error) {

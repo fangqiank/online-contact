@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter, useSearchParams } from "next/navigation";
 import type { Contact } from "@/lib/types";
 import {
   Table,
@@ -17,20 +18,66 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Pencil, Trash2, User } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, User, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import Image from "next/image";
+
+/** 可排序列定义 */
+interface SortableColumn {
+  key: string;
+  label: string;
+  className?: string;
+}
+
+const columns: SortableColumn[] = [
+  { key: "name", label: "姓名" },
+  { key: "employeeId", label: "工号", className: "hidden md:table-cell" },
+  { key: "email", label: "邮箱", className: "hidden sm:table-cell" },
+  { key: "phone", label: "电话", className: "hidden lg:table-cell" },
+  { key: "department", label: "部门", className: "hidden lg:table-cell" },
+  { key: "position", label: "职位", className: "hidden xl:table-cell" },
+  { key: "status", label: "状态" },
+];
 
 interface ContactsTableProps {
   contacts: Contact[];
   onEdit: (contact: Contact) => void;
   onDelete: (contact: Contact) => void;
+  sort: string;
+  order: "asc" | "desc";
 }
 
 export function ContactsTable({
   contacts,
   onEdit,
   onDelete,
+  sort,
+  order,
 }: ContactsTableProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  function handleSort(key: string) {
+    const params = new URLSearchParams(searchParams.toString());
+    if (sort === key) {
+      // 同列切换方向：asc → desc → asc
+      params.set("order", order === "asc" ? "desc" : "asc");
+    } else {
+      params.set("sort", key);
+      params.set("order", "asc");
+    }
+    params.delete("page"); // 切换排序时回到第一页
+    router.push(`?${params.toString()}`);
+  }
+
+  function SortIcon({ columnKey }: { columnKey: string }) {
+    if (sort !== columnKey) {
+      return <ArrowUpDown className="ml-1 size-3 opacity-40 group-hover:opacity-80" />;
+    }
+    return order === "asc"
+      ? <ArrowUp className="ml-1 size-3" />
+      : <ArrowDown className="ml-1 size-3" />;
+  }
+
   if (contacts.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
@@ -46,15 +93,23 @@ export function ContactsTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>姓名</TableHead>
-            <TableHead className="hidden md:table-cell">工号</TableHead>
-            <TableHead className="hidden sm:table-cell">邮箱</TableHead>
-            <TableHead className="hidden lg:table-cell">电话</TableHead>
-            <TableHead className="hidden lg:table-cell">部门</TableHead>
-            <TableHead className="hidden xl:table-cell">职位</TableHead>
-            <TableHead>状态</TableHead>
+            {columns.map((col) => (
+              <TableHead
+                key={col.key}
+                className={col.className}
+              >
+                <button
+                  type="button"
+                  onClick={() => handleSort(col.key)}
+                  className="group inline-flex items-center hover:text-foreground cursor-pointer -ml-1 px-1 rounded transition-colors"
+                >
+                  {col.label}
+                  <SortIcon columnKey={col.key} />
+                </button>
+              </TableHead>
+            ))}
             <TableHead className="w-[50px]">
-              <span className="sr-only">Actions</span>
+              <span className="sr-only">操作</span>
             </TableHead>
           </TableRow>
         </TableHeader>

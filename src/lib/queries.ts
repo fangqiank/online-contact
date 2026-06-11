@@ -1,6 +1,7 @@
 import { db } from "@/db";
 import { contacts } from "@/db/schema";
-import { and, count, desc, eq, ilike, isNotNull, ne, or } from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, isNotNull, ne, or } from "drizzle-orm";
+import type { PgColumn } from "drizzle-orm/pg-core";
 
 export interface GetContactsParams {
   page?: number;
@@ -8,7 +9,22 @@ export interface GetContactsParams {
   search?: string;
   department?: string;
   status?: string;
+  sort?: string;
+  order?: "asc" | "desc";
 }
+
+/** 允许排序的列映射，防止 SQL 注入 */
+const sortableColumns: Record<string, PgColumn> = {
+  name: contacts.name,
+  email: contacts.email,
+  phone: contacts.phone,
+  department: contacts.department,
+  position: contacts.position,
+  status: contacts.status,
+  hireDate: contacts.hireDate,
+  employeeId: contacts.employeeId,
+  salaryLevel: contacts.salaryLevel,
+};
 
 export interface GetContactsResult {
   data: Awaited<ReturnType<typeof getContacts>> extends infer T
@@ -45,12 +61,18 @@ export async function getContacts(params: GetContactsParams = {}) {
 
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
+  // 动态排序：仅允许白名单中的列
+  const sortCol = params.sort && sortableColumns[params.sort]
+    ? sortableColumns[params.sort]
+    : contacts.createdAt;
+  const sortOrder = params.order === "asc" ? asc(sortCol) : desc(sortCol);
+
   const [data, totalResult] = await Promise.all([
     db
       .select()
       .from(contacts)
       .where(whereClause)
-      .orderBy(desc(contacts.createdAt))
+      .orderBy(sortOrder)
       .limit(pageSize)
       .offset(offset),
     db
